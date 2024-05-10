@@ -7,14 +7,14 @@
     <meta http-equiv="Cache-Control" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
     <meta http-equiv="Cache-Control" content="must-revalidate"/>
-    <title>YQCode - API文档</title>
+    <title>YQDoc - API文档</title>
     <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>
     <script src="/webjars/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
     <script src="/webjars/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
     <style>
 
         pre {
-            overflow: auto;
+            overflow-x: auto;
             white-space: pre-wrap;
             white-space: -moz-pre-wrap;
             white-space: -o-pre-wrap;
@@ -29,10 +29,11 @@
         <div class="col-lg-12 column">
             <div class="page-header">
                 <h1>
-                    <strong>YQCode-Doc
-                        <small>使用默认账号进行授权</small>
+                    <strong>YQDoc-API 文档</strong>
+                        <small>请搜索您的授权方法获取token填入下方</small>
                     </strong>
                 </h1>
+                <input class="form-control" value="${token}" type="text" id="token" placeholder="token">
                 <p>
                     <strong>
                         说明：<color style="color: green">YQCode-Doc</color>是无侵入式的API文档，只要正常写注释即可得到文档和相关参数的描述
@@ -96,12 +97,17 @@
                                                             <#if param.type=='org.springframework.web.multipart.MultipartFile'>
                                                                 <input id="upfile_${a}-${k_index}" type="file" name="file"/>
                                                             <#else>
-                                                                <input type="text" class="form-control" id="${param.name}" name="${param.name}" placeholder="${param.comment}"/>
+                                                                <#if param.name?contains(".")>
+                                                                    <#assign paramName = param.name?substring(param.name?last_index_of(".") + 1)>
+                                                                <#else>
+                                                                    <#assign paramName = param.name>
+                                                                </#if>
+                                                                <input type="text" class="form-control" id="${paramName}" name="${paramName}" placeholder="${param.comment}"/>
                                                             </#if>
                                                         </div>
                                                     </#list>
                                                 </form>
-                                                <input class="btn btn-primary" type="button" value="执行" onclick="doApi('${a}-${k_index}', '', '${a}', '${k.requestUrl}', false);">
+                                                <input class="btn btn-primary" type="button" value="执行" onclick="doApi('${a}-${k_index}', '', '${a}', '${k.requestUrl}', false, '${k.contentType}');">
 <#--                                                <input style="color: green" class="btn btn-default" type="button" value="mock" onclick="doApi('${a}-${k_index}', '', '${a}', '${k.requestUrl}', true);">-->
                                                 <br/><br/>
                                                 <span>返回结果：</span>
@@ -154,19 +160,20 @@
     });
 
     $("#searchBtn").click(function () {
-        window.location.href = '${baseUrl}/doc?keyWord=' + $("#searchInput").val();
+        window.location.href = '${baseUrl}/doc?token=' + $("#token").val() + '&keyWord=' + $("#searchInput").val();
     })
 
     $("#resetBtn").click(function() {
-        window.location.href = '${baseUrl}/doc';
+        window.location.href = '${baseUrl}/doc?token=' + $("#token").val();
     });
 
 
-    function doApi(index, method, server, api, isMock) {
+    function doApi(index, method, server, api, isMock, contentType) {
+        if($("#token").val()){
+            $.get("${baseUrl}/doc/saveToken?token=" + $("#token").val());
+        }
         $("#result_" + index).text("系统正在执行，请稍后。。。");
         let url = '${baseUrl}' + api;
-
-        console.info(url)
 
         if ($('#upfile_' + index).length > 0) {
             //alert("upfile");
@@ -184,8 +191,7 @@
                 cache: false,
                 timeout: 600000,
                 headers: {
-                    token: '${token}',
-                    mock: isMock
+                    Authorization: 'Bearer ' + $("#token").val()
                 },
                 success: function (data) {
                     $("#result_" + index).text(JSON.stringify(data, null, 4));
@@ -203,44 +209,37 @@
             let jo = $("#form_" + index).serializeObject();
 
             method = $("#methodSelect_" + index).val();
-            console.info(jo)
             for (var key in jo) {
                 url = url.replace("{" + key + "}", jo[key]);
             }
 
+            if(contentType === "application/json"){
+                data = JSON.stringify(jo);
+            }
+
             $.ajax({
                 url: url,
+                contentType: contentType,
                 type: method,
                 data: data,
                 timeout: 600000,
                 dataType: "json",
                 headers: {
-                    token: '${token}',
-                    mock: isMock
+                    Authorization: 'Bearer ' + $("#token").val()
                 },
                 success: function (d) {
                     $("#result_" + index).text(JSON.stringify(d, null, 4));
                 },
                 error: function (data) {
+                    if(data.status == 403){
+                        $.get("${baseUrl}/doc/removeToken");
+                        $("#token").val("");
+                        alert("token已过期，请重新授权！");
+                    }
                     $("#result_" + index).text(JSON.stringify(data, null, 4));
                 }
             });
         }
-    }
-
-    function getToken() {
-        let url = '${baseUrl}' + "oauth2/oauth/token?client_id=huaying&client_secret=huaying&username=admin&password=admin&grant_type=password";
-        $.ajax({
-            url: url,
-            headers: {
-                Accept: "application/json; charset=utf-8",
-                Authorization: "Basic aHVheWluZzpodWF5aW5n"
-            },
-            type: "post",
-            success: function (data) {
-                alert(data.access_token)
-            }
-        });
     }
 
 </script>

@@ -15,5 +15,6 @@ public class RequestToMethodItem {
     public String methodName;
     public List<MethodParam> methodParams;
     public String description;
+    public String contentType;
 
 }

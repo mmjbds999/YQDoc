@@ -7,6 +7,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -91,6 +93,17 @@ public class ApiDcoGen {
                     List<MethodParam> methodParamList = new ArrayList<>();
                     int i = 0;
 
+                    String contentType = "application/x-www-form-urlencoded";
+                    // 获取方法的参数注解
+                    Annotation[][] parameterAnnotations = mappingInfoValue.getMethod().getParameterAnnotations();
+                    if (parameterAnnotations != null && parameterAnnotations.length > 0) {
+                        Annotation[] annotations = parameterAnnotations[0]; // 获取第一个参数的注解
+                        for (Annotation annotation : annotations) {
+                            if (annotation instanceof RequestBody) {
+                                contentType = "application/json";
+                            }
+                        }
+                    }
                     if (methodParamTypes.length > 0) {
                         String packageName = getBasePackage(getThreadPoint(controllerName));
                         for (Class<?> type : methodParamTypes) {
@@ -115,7 +128,7 @@ public class ApiDcoGen {
                             i++;
                         }
                     }
-                    RequestToMethodItem item = new RequestToMethodItem(requestUrl, requestType, controllerName, requestMethodName, methodParamList, description);
+                    RequestToMethodItem item = new RequestToMethodItem(requestUrl, requestType, controllerName, requestMethodName, methodParamList, description, contentType);
                     requestToMethodItemList.add(item);
                 }
                 break;
