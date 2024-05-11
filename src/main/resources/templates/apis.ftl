@@ -231,11 +231,6 @@
                     $("#result_" + index).text(JSON.stringify(d, null, 4));
                 },
                 error: function (data) {
-                    if(data.status == 403){
-                        $.get("${baseUrl}/doc/removeToken");
-                        $("#token").val("");
-                        alert("token已过期，请重新授权！");
-                    }
                     $("#result_" + index).text(JSON.stringify(data, null, 4));
                 }
             });
