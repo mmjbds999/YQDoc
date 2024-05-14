@@ -170,7 +170,13 @@
 
     function doApi(index, method, server, api, isMock, contentType) {
         if($("#token").val()){
-            $.get("${baseUrl}/doc/saveToken?token=" + $("#token").val());
+            $.ajax({
+                type: "GET",
+                url: "${baseUrl}/doc/saveToken?token=" + $("#token").val(),
+                headers: {
+                    Authorization: 'Bearer ' + $("#token").val()
+                }
+            });
         }
         $("#result_" + index).text("系统正在执行，请稍后。。。");
         let url = '${baseUrl}' + api;
