@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.hy.yqdoc.component.ApiDcoGen;
 import com.hy.yqdoc.entity.RequestToMethodItem;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -42,13 +43,15 @@ public class ApiController {
     }
 
     @GetMapping("/doc/saveToken")
-    public void saveToken(String token) {
+    public ResponseEntity<String> saveToken(String token) {
         map.put("token", token);
+        return ResponseEntity.ok("success");
     }
 
     @GetMapping("/doc/removeToken")
-    public void removeToken() {
+    public ResponseEntity removeToken() {
         map.remove("token");
+        return ResponseEntity.ok("success");
     }
 
     private String getBaseUrl(HttpServletRequest request){
