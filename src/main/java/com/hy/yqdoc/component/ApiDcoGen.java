@@ -56,13 +56,16 @@ public class ApiDcoGen {
                     HandlerMethod mappingInfoValue = requestMappingInfoHandlerMethodEntry.getValue();
 
                     RequestMethodsRequestCondition methodCondition = requestMappingInfo.getMethodsCondition();
-                    if (methodCondition.getMethods().size() == 0) {
-                        continue;
-                    }
                     List<String> typeList = new ArrayList<>();
                     Set<RequestMethod> methods = methodCondition.getMethods();
-                    for (RequestMethod method : methods) {
-                        typeList.add(method.name());
+                    if (methods.size() == 0) {
+                        // 没指定只处理这2种
+                        typeList.add("GET");
+                        typeList.add("POST");
+                    } else {
+                        for (RequestMethod method : methods) {
+                            typeList.add(method.name());
+                        }
                     }
                     String[] requestType = typeList.toArray(new String[typeList.size()]);
 
