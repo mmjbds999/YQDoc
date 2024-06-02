@@ -43,15 +43,13 @@ public class ApiController {
     }
 
     @GetMapping("/doc/saveToken")
-    public ResponseEntity<String> saveToken(String token) {
+    public void saveToken(String token) {
         map.put("token", token);
-        return ResponseEntity.ok("success");
     }
 
     @GetMapping("/doc/removeToken")
-    public ResponseEntity removeToken() {
+    public void removeToken() {
         map.remove("token");
-        return ResponseEntity.ok("success");
     }
 
     private String getBaseUrl(HttpServletRequest request){

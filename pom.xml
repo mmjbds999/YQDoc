@@ -61,12 +61,12 @@
     <!-- 发布地址，用户名和密码在setting.xml中 -->
     <distributionManagement>
         <repository>
-            <id>releases</id>
+            <id>kmut</id>
             <name>Releases</name>
             <url>http://nexus.kmut.com/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
+            <id>kmut</id>
             <name>Snapshot</name>
             <url>http://nexus.kmut.com/repository/maven-snapshots/</url>
         </snapshotRepository>
