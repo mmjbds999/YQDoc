@@ -8,6 +8,7 @@
     <meta http-equiv="Expires" content="0"/>
     <meta http-equiv="Cache-Control" content="must-revalidate"/>
     <title>YQDoc - API文档</title>
+    <link rel="icon" href="/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>
     <script src="/webjars/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
     <script src="/webjars/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>

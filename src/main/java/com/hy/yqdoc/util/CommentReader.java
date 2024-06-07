@@ -100,7 +100,7 @@ public class CommentReader {
                     inComment = false;
                     continue;
                 }
-                if (!inComment) {
+                if (!inComment && !line.contains("@")) {
                     if(line.endsWith(fieldName+";")){
                         methodComment.append(temp);
                         break;

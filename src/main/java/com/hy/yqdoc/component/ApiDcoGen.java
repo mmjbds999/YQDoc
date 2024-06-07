@@ -117,7 +117,19 @@ public class ApiDcoGen {
                                     //如果是当前项目包下的类，则作为实体类的参数读取字段注释
                                     Field[] fields = type.getDeclaredFields();
                                     for (Field field : fields) {
+                                        // 过滤掉 serialVersionUID 字段
+                                        if ("serialVersionUID".equals(field.getName())) {
+                                            continue;
+                                        }
+                                        // 过滤掉类型为 java.util.List 的字段
+                                        if (field.getType().equals(java.util.List.class)) {
+                                            continue;
+                                        }
                                         String comment = CommentReader.readFieldComment(type.getName(), field.getName());
+                                        // 类型名称包含 .entity. 的字段 comment 加上一些注释
+                                        if (field.getType().getName().contains(".entity.")) {
+                                            comment = comment + "（直接填入ID字段即可）";
+                                        }
                                         MethodParam methodParam = new MethodParam(type.getSimpleName()+"."+field.getName(), field.getType(), comment);
                                         methodParamList.add(methodParam);
                                     }
