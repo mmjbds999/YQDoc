@@ -10,11 +10,40 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.hy</groupId>
+    <groupId>io.github.mmjbds999</groupId>
     <artifactId>YQDoc</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>YQDoc</name>
     <description>YQDoc</description>
+
+    <!--项目访问url -->
+    <url>https://github.com/mmjbds999/YQDoc</url>
+    <scm>
+        <!--项目访问url -->
+        <url>https://github.com/mmjbds999/YQDoc</url>
+        <!--项目访问url.git结尾 -->
+        <connection>scm:git@github.com:mmjbds999/YQDoc.git</connection>
+        <!--项目访问url.git结尾 -->
+        <developerConnection>scm:git@github.com:mmjbds999/YQDoc.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>mmjbds999</id>
+            <name>mmjbds999</name>
+            <email>496429422@qq.com</email>
+            <!--项目访问url -->
+            <url>https://github.com/mmjbds999/YQDoc</url>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -58,18 +87,98 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Source -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Javadoc -->
+            <!-- Gpg Signature -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- 老账号的配置：Gpg Signature -->
+            <!--将组件部署到OSSRH并将其发布到Central Repository-->
+            <!--<plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>${serverId}</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>-->
+            <!--新账号的配置：将组件部署到OSSRH并将其发布到Central Repository-->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <!-- 发布地址，用户名和密码在setting.xml中 -->
     <distributionManagement>
-        <repository>
-            <id>kmut</id>
-            <name>Releases</name>
-            <url>http://nexus.kmut.com/repository/maven-releases/</url>
-        </repository>
         <snapshotRepository>
-            <id>kmut</id>
-            <name>Snapshot</name>
-            <url>http://nexus.kmut.com/repository/maven-snapshots/</url>
+            <!-- 与settings.xml的server.id保持一致 -->
+            <id>${serverId}</id>
+            <url>https://central.sonatype.com/</url>
         </snapshotRepository>
+        <!--        <repository>-->
+        <!--            <id>releases</id>-->
+        <!--            <name>Releases</name>-->
+        <!--            <url>http://nexus.kmut.com/repository/maven-releases/</url>-->
+        <!--        </repository>-->
+        <!--        <snapshotRepository>-->
+        <!--            <id>snapshots</id>-->
+        <!--            <name>Snapshot</name>-->
+        <!--            <url>http://nexus.kmut.com/repository/maven-snapshots/</url>-->
+        <!--        </snapshotRepository>-->
     </distributionManagement>
 
 </project>
