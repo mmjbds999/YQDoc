@@ -4,12 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.hy.yqdoc.component.ApiDcoGen;
 import com.hy.yqdoc.entity.RequestToMethodItem;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.Priority;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -28,6 +32,9 @@ public class ApiController {
 
     @GetMapping("/doc")
     public String doc(Model model, HttpServletRequest request, String keyWord, String token){
+        if (!isAllowedAccess()) {
+            return "error";
+        }
         if(StringUtils.hasText(token)){
             map.put("token", token);
         }else{
@@ -44,11 +51,17 @@ public class ApiController {
 
     @GetMapping("/doc/saveToken")
     public void saveToken(String token) {
+        if (!isAllowedAccess()) {
+            return;
+        }
         map.put("token", token);
     }
 
     @GetMapping("/doc/removeToken")
     public void removeToken() {
+        if (!isAllowedAccess()) {
+            return;
+        }
         map.remove("token");
     }
 
@@ -77,6 +90,16 @@ public class ApiController {
         }
         map.put("YQCode", list);
         return map;
+    }
+
+    /**
+     * 判断是否是允许访问
+     * @return
+     */
+    private boolean isAllowedAccess() {
+        String activeProfile = System.getProperty("spring.profiles.active");
+        System.out.println(activeProfile);
+        return !"prod".equals(activeProfile) && !"production".equals(activeProfile);
     }
 
 }
