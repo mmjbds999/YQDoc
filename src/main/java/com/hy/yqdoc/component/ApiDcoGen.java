@@ -100,10 +100,12 @@ public class ApiDcoGen {
                     // 获取方法的参数注解
                     Annotation[][] parameterAnnotations = mappingInfoValue.getMethod().getParameterAnnotations();
                     if (parameterAnnotations != null && parameterAnnotations.length > 0) {
-                        Annotation[] annotations = parameterAnnotations[0]; // 获取第一个参数的注解
-                        for (Annotation annotation : annotations) {
-                            if (annotation instanceof RequestBody) {
-                                contentType = "application/json";
+                        for (Annotation[] annotations : parameterAnnotations){
+                            for (Annotation annotation : annotations) {
+                                if (annotation instanceof RequestBody) {
+                                    contentType = "application/json";
+                                    break;
+                                }
                             }
                         }
                     }
