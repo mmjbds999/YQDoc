@@ -12,6 +12,7 @@ public class RequestToMethodItem {
     public String requestUrl;
     public String[] requestType;
     public String controllerName;
+    public String controllerComment;
     public String methodName;
     public List<MethodParam> methodParams;
     public String description;

@@ -30,7 +30,7 @@
         <div class="col-lg-12 column">
             <div class="page-header">
                 <h1>
-                    <strong>YQDoc-API 文档</strong>
+                    <strong>YQDoc-API 文档【openAPI下载】</strong>
                         <small>请搜索您的授权方法获取token填入下方</small>
                     </strong>
                 </h1>
@@ -74,7 +74,7 @@
                                                        href="#panel-element-${a}-${k_index}">${k.requestUrl!}</a>
                                                 </div>
                                                 <div class="col-md-8" style="padding-left:0px">
-                                                    <span style="color: darkgoldenrod">【${k.description}】</span>
+                                                    <span style="color: darkgoldenrod">【${k.controllerComment}--${k.description}】</span>
                                                 </div>
                                             </div>
                                         </div>

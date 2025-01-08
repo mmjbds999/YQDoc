@@ -1,5 +1,6 @@
 package com.hy.yqdoc.component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hy.yqdoc.entity.MethodParam;
 import com.hy.yqdoc.entity.RequestToMethodItem;
 import com.hy.yqdoc.util.CommentReader;
@@ -25,9 +26,79 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class ApiDcoGen {
+
+    /**
+     * 生成OpenAPI文档
+     * @param request
+     * @return
+     */
+    public String generateOpenApiJson(HttpServletRequest request) {
+        Map<String, Object> openApi = new HashMap<>();
+        openApi.put("openapi", "3.0.0");
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("title", "API Documentation");
+        info.put("version", "1.0.0");
+        openApi.put("info", info);
+
+        Map<String, Object> paths = new HashMap<>();
+
+        List<RequestToMethodItem> apiList = getCurrentServerApi(request, null);
+        for (RequestToMethodItem item : apiList) {
+            Map<String, Object> operation = new HashMap<>();
+            operation.put("summary", item.getDescription());
+            operation.put("description", item.getDescription());
+
+            // 设置请求参数
+            List<Map<String, Object>> parameters = new ArrayList<>();
+            for (MethodParam param : item.getMethodParams()) {
+                Map<String, Object> parameter = new HashMap<>();
+                parameter.put("name", param.getName());
+                parameter.put("in", "query");
+                parameter.put("required", true);
+
+                // 根据类型设置schema
+                String type = param.getType().getSimpleName().toLowerCase();
+                parameter.put("schema", Map.of("type", type));
+                parameter.put("description", param.getComment()); // 添加参数的注释
+                parameters.add(parameter);
+            }
+            operation.put("parameters", parameters);
+
+            // 添加响应信息
+            Map<String, Object> responses = new HashMap<>();
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("description", "成功");
+            successResponse.put("content", Map.of(
+                    "application/json", Map.of("schema", Map.of("type", "object"))
+            ));
+            responses.put("200", successResponse);
+            operation.put("responses", responses);
+
+            String requestMethod = item.getRequestType()[0].toLowerCase();
+            String requestUrl = item.getRequestUrl();
+
+            // 添加tags属性
+            String controllerComment = item.getControllerComment();
+            operation.put("tags", List.of(controllerComment)); // 使用控制器注释作为tag
+
+            paths.put(requestUrl, Map.of(requestMethod, operation));
+        }
+
+        openApi.put("paths", paths);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(openApi);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{}"; // 返回空的 JSON
+        }
+    }
 
     /**
      * 获取当前服务的API
@@ -78,9 +149,9 @@ public class ApiDcoGen {
 
                     String controllerName = mappingInfoValue.getBeanType().toString().substring(6);
 
-                    String description = "无";
                     Map methodComment = CommentReader.readMethodComment(controllerName, mappingInfoValue.getMethod().getName());
-                    description = methodComment.get("comment").toString();
+                    String controllerComment = methodComment.get("classComment").toString();
+                    String description = methodComment.get("comment").toString();
 
                     if(StringUtils.hasText(keyWord)){
                         if(!description.contains(keyWord) && !requestUrl.contains(keyWord)){
@@ -145,8 +216,11 @@ public class ApiDcoGen {
                             i++;
                         }
                     }
-                    RequestToMethodItem item = new RequestToMethodItem(requestUrl, requestType, controllerName, requestMethodName, methodParamList, description, contentType);
+                    RequestToMethodItem item = new RequestToMethodItem(requestUrl, requestType, controllerName, controllerComment, requestMethodName, methodParamList, description, contentType);
                     requestToMethodItemList.add(item);
+                    requestToMethodItemList = requestToMethodItemList.stream()
+                            .sorted(Comparator.comparing(RequestToMethodItem::getRequestUrl))
+                            .collect(Collectors.toList());
                 }
                 break;
             }
