@@ -30,7 +30,7 @@
         <div class="col-lg-12 column">
             <div class="page-header">
                 <h1>
-                    <strong>YQDoc-API 文档【openAPI下载】</strong>
+                    <strong>YQDoc-API 文档【<a href="/doc/openapi">openAPI下载】</a></strong>
                         <small>请搜索您的授权方法获取token填入下方</small>
                     </strong>
                 </h1>

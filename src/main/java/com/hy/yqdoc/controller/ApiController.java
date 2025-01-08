@@ -57,20 +57,13 @@ public class ApiController {
      * @return
      */
     @GetMapping("/doc/openapi")
-    @ResponseBody
-    public ResponseEntity<String> downloadOpenApiJson(HttpServletRequest request) {
+    public String downloadOpenApiJson(Model model, HttpServletRequest request) {
         if (!isAllowedAccess()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "prod和production标记的生产环境不允许访问DOC！");
         }
-
         String openApiJson = apiDcoGen.generateOpenApiJson(request);
-        System.out.println("openApiJson:"+openApiJson);
-
-        // 设置响应头，告知浏览器下载文件
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=openapi.json")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(openApiJson);
+        model.addAttribute("openapi", openApiJson);
+        return "openapi";
     }
 
     @GetMapping("/doc/saveToken")
@@ -125,7 +118,7 @@ public class ApiController {
      */
     private boolean isAllowedAccess() {
         String activeProfile = environment.getProperty("spring.profiles.active", "default");
-        System.out.println("activeProfile:"+activeProfile);
+        System.out.println("当前环境:"+activeProfile);
         return !"prod".equals(activeProfile) && !"production".equals(activeProfile);
     }
 
