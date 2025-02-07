@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -164,12 +165,46 @@ public class CommentReader {
      * @return 当前项目的路径
      */
     private static String getFilePath(String packageName) {
+        String fullPath = null;
+        String resourcePath = packageName.replace(".", "/") + ".java";  // 转换成资源路径
+
+        // 判断是否在 JAR 中运行
         String currentPath = System.getProperty("user.dir");
-        String packagePath = packageName.replace(".", File.separator);
-        String fullPath = currentPath +
-                File.separator + "src" + File.separator + "main" + File.separator + "java" +
-                File.separator + packagePath + ".java";
+        File file = new File(currentPath + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + resourcePath);
+
+        if (file.exists()) {
+            // 在开发环境中直接读取文件
+            fullPath = file.getAbsolutePath();
+        } else {
+            System.out.println("当前项目不在开发环境中，将使用类加载器读取资源");
+            // 如果在 JAR 中运行，则使用类加载器读取
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            URL resource = classLoader.getResource(resourcePath);
+
+            if (resource != null) {
+                fullPath = resource.getPath();  // 获取资源的路径
+            } else {
+                throw new RuntimeException("找不到资源路径: " + resourcePath);
+            }
+        }
+
         return fullPath;
+    }
+
+
+    // 写个方法测试下，测试2种读取方式
+    public static void main(String[] args) {
+        String packageName = "com.hy.yqdoc.util.CommentReader";
+        String methodName = "readMethodComment";
+        String fieldName = "packageName";
+
+        // 读取方法注释
+        Map<String, Object> methodComment = readMethodComment(packageName, methodName);
+        System.out.println("方法注释：" + methodComment);
+
+        // 读取字段注释
+        String fieldComment = readFieldComment(packageName, fieldName);
+        System.out.println("字段注释：" + fieldComment);
     }
 
 }
